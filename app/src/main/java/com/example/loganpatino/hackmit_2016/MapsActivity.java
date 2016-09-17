@@ -5,15 +5,24 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceDetectionApi;
+import com.google.android.gms.location.places.PlaceLikelihood;
+import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -26,17 +35,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
+    private View mView;
+
     private final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    private final String COLLEGE = "college";
+    private final String UNIVERSITY = "university";
+    private final String INSTITUTE = "institute";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        mView = findViewById(R.id.map);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        mView = getCurrentFocus();
 
         // Create an instance of GoogleAPIClient.
         if (mGoogleApiClient == null) {
@@ -44,6 +62,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .addApi(LocationServices.API)
+                    .addApi(Places.PLACE_DETECTION_API)
                     .build();
         }
     }
@@ -85,9 +104,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mGoogleApiClient);
 
         // Add a marker at current location and move the camera
-        LatLng sydney = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Current Location"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+        mMap.addMarker(new MarkerOptions().position(currentLocation).title("Current Location"));
+        mMap.moveCamera(CameraUpdateFactory.zoomTo(16));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
+
+        PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
+        result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
+            @Override
+            public void onResult(@NonNull PlaceLikelihoodBuffer likelyPlaces) {
+                Place mostLikely = null;
+                for (PlaceLikelihood placeLikelihood : likelyPlaces) {
+                    String placeName = String.valueOf(placeLikelihood.getPlace().getName()).toLowerCase();
+                    if (placeName.contains(COLLEGE) || placeName.contains(UNIVERSITY) || placeName.contains(INSTITUTE)) {
+                        mostLikely = placeLikelihood.getPlace();
+                    }
+                }
+
+                if (mostLikely != null) {
+                    Log.d("Place Test", String.format("Current university: %s", mostLikely.getName()));
+                }
+                likelyPlaces.release();
+            }
+        });
 
         Log.d("Location Test", String.valueOf(mLastLocation.getLatitude()) + ", " + String.valueOf(mLastLocation.getLongitude()));
     }
