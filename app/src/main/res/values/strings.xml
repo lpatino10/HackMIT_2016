@@ -2,4 +2,7 @@
     <string name="app_name">HackMIT_2016</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_maps">Map</string>
+    <string name="dialog_make_marker">Create marker?</string>
+    <string name="yes">Yes</string>
+    <string name="cancel">Cancel</string>
 </resources>
