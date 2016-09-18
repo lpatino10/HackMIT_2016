@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/toggle"
+            android:title="Toggle Map/List"/>
+    </group>
+
+    <item android:title="Filter">
+        <menu>
+            <item
+                android:id="@+id/nav_party"
+                android:title="Parties"/>
+            <item
+                android:id="@+id/nav_rush"
+                android:title="Rush Events"/>
+            <item
+                android:id="@+id/nav_food"
+                android:title="Free Food"/>
+            <item
+                android:id="@+id/nav_recruiting"
+                android:title="Company Recruiting"/>
+            <item
+                android:id="@+id/nav_other"
+                android:title="Other"/>
+        </menu>
+    </item>
+
+</menu>

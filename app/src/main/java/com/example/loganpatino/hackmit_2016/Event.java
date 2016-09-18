@@ -7,15 +7,19 @@ public class Event {
     private String latitude;
     private String longitude;
     private String name;
+    private String eventType;
+    private String eventDescription;
 
     public Event() {
 
     }
 
-    public Event(String latitude, String longitude, String name) {
+    public Event(String latitude, String longitude, String name, String eventType, String eventDescription) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.name = name;
+        this.eventType = eventType;
+        this.eventDescription = eventDescription;
     }
 
     public String getLatitude() {
@@ -30,6 +34,14 @@ public class Event {
         return name;
     }
 
+    public String getEventType() {
+        return eventType;
+    }
+
+    public String getEventDescription() {
+        return eventDescription;
+    }
+
     public void setLatitude(String latitude) {
         this.latitude = latitude;
     }
@@ -40,5 +52,13 @@ public class Event {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
+
+    public void setEventDescription(String eventDescription) {
+        this.eventDescription = eventDescription;
     }
 }
