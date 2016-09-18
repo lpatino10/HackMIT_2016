@@ -17,6 +17,11 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -45,6 +50,7 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
     private Location mLastLocation;
     private View mView;
     private LatLng mNewLocation;
+    private Firebase mEventsRef;
 
     private final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private final String COLLEGE = "college";
@@ -56,15 +62,12 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        mView = findViewById(R.id.map);
-
+        mEventsRef = new Firebase("https://hackmit-2016-1742c.firebaseio.com/events");
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        mView = getCurrentFocus();
 
         // Create an instance of GoogleAPIClient.
         if (mGoogleApiClient == null) {
@@ -122,27 +125,13 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
         mMap.addMarker(new MarkerOptions().position(currentLocation).title("Current Location"));
         mMap.moveCamera(CameraUpdateFactory.zoomTo(16));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
-
-        PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
-        result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
-            @Override
-            public void onResult(@NonNull PlaceLikelihoodBuffer likelyPlaces) {
-                Place mostLikely = null;
-                for (PlaceLikelihood placeLikelihood : likelyPlaces) {
-                    String placeName = String.valueOf(placeLikelihood.getPlace().getName()).toLowerCase();
-                    if (placeName.contains(COLLEGE) || placeName.contains(UNIVERSITY) || placeName.contains(INSTITUTE)) {
-                        mostLikely = placeLikelihood.getPlace();
-                    }
-                }
-
-                if (mostLikely != null) {
-                    Log.d("Place Test", String.format("Current university: %s", mostLikely.getName()));
-                }
-                likelyPlaces.release();
-            }
-        });
-
         Log.d("Location Test", String.valueOf(mLastLocation.getLatitude()) + ", " + String.valueOf(mLastLocation.getLongitude()));
+
+        getSchool();
+
+        getMarkers();
+
+
     }
 
     @Override
@@ -189,6 +178,52 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
         bundle.putSerializable("test", this);
         prompt.setArguments(bundle);
         prompt.show(getFragmentManager(), null);
+
+    private void getSchool() {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_LOCATION);
+        }
+        PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
+        result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
+            @Override
+            public void onResult(@NonNull PlaceLikelihoodBuffer likelyPlaces) {
+                Place mostLikely = null;
+                for (PlaceLikelihood placeLikelihood : likelyPlaces) {
+                    String placeName = String.valueOf(placeLikelihood.getPlace().getName()).toLowerCase();
+                    if (placeName.contains(COLLEGE) || placeName.contains(UNIVERSITY) || placeName.contains(INSTITUTE)) {
+                        mostLikely = placeLikelihood.getPlace();
+                    }
+                }
+
+                if (mostLikely != null) {
+                    Log.d("Place Test", String.format("Current university: %s", mostLikely.getName()));
+                }
+                likelyPlaces.release();
+            }
+        });
+    }
+
+    private void getMarkers() {
+        Query query = mEventsRef;
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot eventSnapshot : dataSnapshot.getChildren()) {
+                    Event event = eventSnapshot.getValue(Event.class);
+                    Log.d("Data pull test - lat", event.getLatitude());
+                    Log.d("Data pull test - long", event.getLongitude());
+                    Log.d("Data pull test - name", event.getName());
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
     public void startCreateMarker() {

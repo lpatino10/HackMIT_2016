@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "133608664869",
+    "firebase_url": "https://hackmit-2016-1742c.firebaseio.com",
+    "project_id": "hackmit-2016-1742c",
+    "storage_bucket": "hackmit-2016-1742c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:133608664869:android:c354bb701e3fd9c8",
+        "android_client_info": {
+          "package_name": "com.example.loganpatino.hackmit_2016"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "133608664869-7f196o50jof8t2maubj1gsmi4359jjlg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSsTfOWatpD2TN2WReMJsIN9VO44uV-Kg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
