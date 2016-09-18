@@ -31,13 +31,14 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.Serializable;
 
-public class MapsActivity extends FragmentActivity implements OnMapClickListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, Serializable {
+public class MapsActivity extends FragmentActivity implements OnMapLongClickListener, OnMapClickListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, Serializable {
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
@@ -100,24 +101,13 @@ public class MapsActivity extends FragmentActivity implements OnMapClickListener
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.setOnMapClickListener(this);
+        mMap.setOnMapLongClickListener(this);
         mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(10, 10))
                 .title("Hello world"));
     }
 
     @Override
-    public void onMapClick(LatLng point) {
-        Log.d("click test", "tapped, point=" + point);
-        mNewLocation = point;
-        DialogFrag prompt = new DialogFrag();
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("test", this);
-        prompt.setArguments(bundle);
-        prompt.show(getFragmentManager(), null);
-    }
-
-   @Override
     public void onConnected(@Nullable Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
@@ -190,9 +180,24 @@ public class MapsActivity extends FragmentActivity implements OnMapClickListener
         }
     }
 
+    @Override
+    public void onMapLongClick(LatLng point) {
+        Log.d("click test", "tapped, point=" + point);
+        mNewLocation = point;
+        DialogFrag prompt = new DialogFrag();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("test", this);
+        prompt.setArguments(bundle);
+        prompt.show(getFragmentManager(), null);
+    }
+
     public void startCreateMarker() {
         mMap.addMarker(new MarkerOptions()
                 .position(mNewLocation)
                 .title("New Marker"));
+    }
+
+    @Override
+    public void onMapClick(LatLng latLng) {
     }
 }
